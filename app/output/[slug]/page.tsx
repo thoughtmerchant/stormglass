@@ -1,90 +1,125 @@
-import Link from "next/link"
 import { notFound } from "next/navigation"
-import { ArrowLeft } from "lucide-react"
-import { getPostBySlug, getPostContent, getPostSlugs } from "@/lib/markdown"
+import Image from "next/image"
+import { SiteLayout } from "@/components/layout/site-layout"
+import { getPostBySlug, getPostContent, getAllPosts, type PostMeta } from "@/lib/markdown"
 
-// Generate static params for all posts
-export async function generateStaticParams() {
-  const slugs = getPostSlugs()
-  return slugs.map((slug) => ({ slug }))
+// Generate metadata for the page
+export async function generateMetadata({ params }: { params: { slug: string } }) {
+  const post = getPostBySlug(params.slug, ['title', 'summary', 'author', 'date']) as any
+
+  if (!post) {
+    return {
+      title: 'Post Not Found - Thought Merchants',
+      description: 'The requested blog post could not be found.',
+    }
+  }
+
+  return {
+    title: `${post.title} - Thought Merchants`,
+    description: post.summary,
+    authors: [{ name: post.author }],
+    publishedTime: post.date,
+  }
 }
 
-export default async function BlogPostPage({ params }: { params: { slug: string } }) {
-  const post = getPostBySlug(params.slug, ["title", "date", "author", "summary", "tags"])
+// Generate static params for all possible slugs
+export function generateStaticParams() {
+  const posts = getAllPosts(['slug'])
+  return posts.map((post) => ({
+    slug: post.slug,
+  }))
+}
 
-  // If no matching post is found, return 404
+export default async function PostPage({ params }: { params: { slug: string } }) {
+  // Get the post data
+  const post = getPostBySlug(params.slug, [
+    'title', 
+    'date', 
+    'author', 
+    'content', 
+    'summary', 
+    'tags',
+    'mainImage',
+    'brand',
+  ]) as any
+
+  // If the post doesn't exist, show a 404 page
   if (!post) {
     notFound()
   }
 
+  // Convert the content from markdown to HTML
   const content = await getPostContent(params.slug)
 
-  // Process tags - handle both string and array formats
-  const tags = processTags(post.tags)
+  // Format the date
+  const formattedDate = new Date(post.date).toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  })
 
   return (
-    <div className="max-w-3xl mx-auto p-8 md:p-12">
-      <Link
-        href="/output"
-        className="inline-flex items-center text-blue-600 hover:text-blue-800 transition-colors mb-8"
-      >
-        <ArrowLeft className="h-4 w-4 mr-2" />
-        Back to all posts
-      </Link>
-
-      <article>
-        <header className="mb-10">
-          <div className="text-sm text-slate-500 mb-3">
-            {new Date(post.date).toLocaleDateString("en-US", {
-              year: "numeric",
-              month: "long",
-              day: "numeric",
-            })}
+    <SiteLayout>
+      <article className="max-w-4xl mx-auto">
+        {/* Post Header */}
+        <div className="mb-10">
+          <h1 className="text-3xl md:text-4xl font-bold mb-4">{post.title}</h1>
+          
+          <div className="text-gray-600 dark:text-gray-400 mb-6">
+            <p>
+              Published: {formattedDate}
+              {post.brand && <span> • {post.brand}</span>}
+            </p>
+            <p>Author: {post.author}</p>
           </div>
-          <h1 className="text-3xl md:text-4xl font-normal text-slate-800 mb-4">{post.title}</h1>
-          <p className="text-xl text-slate-600">{post.summary}</p>
-          {post.author && <div className="mt-4 text-sm text-slate-500">By {post.author}</div>}
-          {tags.length > 0 && (
-            <div className="mt-2 flex flex-wrap gap-2">
-              {tags.map((tag: string) => (
-                <span key={tag} className="px-2 py-1 bg-slate-100 text-slate-700 text-xs rounded-full">
-                  {tag}
-                </span>
-              ))}
+
+          {post.mainImage && (
+            <div className="relative w-full h-[400px] mb-8">
+              <Image
+                src={post.mainImage}
+                alt={post.title}
+                fill
+                className="object-cover rounded-lg"
+                priority
+              />
             </div>
           )}
-        </header>
 
-        {content ? (
-          <div
-            className="prose prose-slate max-w-none prose-headings:font-normal prose-headings:text-slate-800 prose-p:text-slate-600 prose-a:text-blue-600"
-            dangerouslySetInnerHTML={{ __html: content }}
-          />
-        ) : (
-          <div className="text-slate-600">Content not available.</div>
-        )}
+          {post.summary && (
+            <div className="text-lg text-gray-700 dark:text-gray-300 border-l-4 border-blue-500 pl-4 py-2 mb-8 bg-gray-50 dark:bg-gray-800 rounded">
+              {post.summary}
+            </div>
+          )}
+        </div>
+
+        {/* Post Content */}
+        <div 
+          className="prose dark:prose-invert max-w-none prose-lg prose-headings:text-black dark:prose-headings:text-white prose-a:text-blue-600 dark:prose-a:text-blue-400"
+          dangerouslySetInnerHTML={{ __html: content || '' }}
+        />
+
+        {/* Post Footer */}
+        <div className="mt-12 pt-6 border-t border-gray-200 dark:border-gray-700">
+          <div className="flex flex-wrap gap-2">
+            {Array.isArray(post.tags) ? (
+              post.tags.map((tag: string) => (
+                <span
+                  key={tag}
+                  className="inline-block px-3 py-1 text-sm rounded-full bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300"
+                >
+                  {tag}
+                </span>
+              ))
+            ) : (
+              post.tags && (
+                <span className="inline-block px-3 py-1 text-sm rounded-full bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
+                  {post.tags}
+                </span>
+              )
+            )}
+          </div>
+        </div>
       </article>
-    </div>
+    </SiteLayout>
   )
-}
-
-// Helper function to process tags in different formats
-function processTags(tags: any): string[] {
-  if (!tags) {
-    return []
-  }
-
-  // If tags is already an array
-  if (Array.isArray(tags)) {
-    return tags.map((tag) => tag.trim())
-  }
-
-  // If tags is a string
-  if (typeof tags === "string") {
-    return tags.split(",").map((tag) => tag.trim())
-  }
-
-  // If tags is in some other format, return empty array
-  console.warn("Unexpected tags format:", tags)
-  return []
 }
