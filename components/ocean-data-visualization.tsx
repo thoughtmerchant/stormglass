@@ -621,7 +621,7 @@ export function OceanDataVisualization({
     return directionAverages.sort((a, b) => b.height - a.height).slice(0, 3)
   }
 
-  // Create primary swell direction lines
+  // Create primary swell direction triangle
   const createPrimarySwellLines = () => {
     const centerX = 400
     const centerY = 400
@@ -670,21 +670,46 @@ export function OceanDataVisualization({
       }
     })
 
+    // We need exactly 2 points to form a triangle with the center
+    if (points.length !== 2) {
+      return null
+    }
+
     return (
       <>
-        {/* Draw lines radiating from center to each point */}
-        {points.map((point, index) => (
-          <line
-            key={`swell-line-${index}`}
-            x1={centerX}
-            y1={centerY}
-            x2={point.x}
-            y2={point.y}
-            stroke="#000000"
-            strokeWidth="1"
-            strokeLinecap="round"
-          />
-        ))}
+        {/* Draw the two radial lines from center to each point */}
+        <line
+          key="swell-line-1"
+          x1={centerX}
+          y1={centerY}
+          x2={points[0].x}
+          y2={points[0].y}
+          stroke="#000000"
+          strokeWidth="1"
+          strokeLinecap="round"
+        />
+        <line
+          key="swell-line-2"
+          x1={centerX}
+          y1={centerY}
+          x2={points[1].x}
+          y2={points[1].y}
+          stroke="#000000"
+          strokeWidth="1"
+          strokeLinecap="round"
+        />
+        
+        {/* Draw the third line connecting the two endpoints */}
+        <line
+          key="swell-line-connecting"
+          x1={points[0].x}
+          y1={points[0].y}
+          x2={points[1].x}
+          y2={points[1].y}
+          stroke="#000000"
+          strokeWidth="1"
+          strokeLinecap="round"
+        />
         
         {/* Debug information - only shown in debug mode */}
         {debug && points.map((point, index) => (
