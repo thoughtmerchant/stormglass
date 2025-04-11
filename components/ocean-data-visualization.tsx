@@ -522,7 +522,7 @@ export function OceanDataVisualization({
 
   // Create temperature rings
   const createTemperatureRings = () => {
-    const rings = []
+    const rings: React.ReactElement[] = []
 
     // Check if water temperature data is available
     if (!waterTempData) {
@@ -719,32 +719,23 @@ export function OceanDataVisualization({
                 strokeWidth="1"
               />
 
-              {/* Debug information - always shown in debug mode */}
-              {debug && (
-                <>
-                  {/* Tide type label */}
-                  <text
-                    x={extreme.x}
-                    y={extreme.y - 20}
-                    textAnchor="middle"
-                    fontSize="11"
-                    fontWeight="bold"
-                    fill={markerColor}
-                  >
-                    {isHigh ? "High" : "Low"} Tide
-                  </text>
+              {/* Always show tide type and height labels */}
+              {/* Tide type label */}
+              <text
+                x={extreme.x}
+                y={extreme.y - 20}
+                textAnchor="middle"
+                fontSize="12"
+                fontWeight="bold"
+                fill={markerColor}
+              >
+                {isHigh ? "High" : "Low"} Tide: {extreme.height.toFixed(1)}ft
+              </text>
 
-                  {/* Time label */}
-                  <text x={extreme.x} y={extreme.y - 35} textAnchor="middle" fontSize="10" fill="#333333">
-                    {extreme.time}
-                  </text>
-
-                  {/* Height label */}
-                  <text x={extreme.x} y={extreme.y + 20} textAnchor="middle" fontSize="10" fill="#333333">
-                    {extreme.height.toFixed(1)}ft
-                  </text>
-                </>
-              )}
+              {/* Time label */}
+              <text x={extreme.x} y={extreme.y - 40} textAnchor="middle" fontSize="11" fill="#333333" fontWeight="500">
+                {extreme.time}
+              </text>
             </g>
           )
         })}
@@ -909,8 +900,8 @@ export function OceanDataVisualization({
             {tidePath && (
               <path
                 d={tidePath}
-                stroke="#0066cc"
-                strokeWidth="2"
+                stroke="#000000"
+                strokeWidth="1"
                 fill="none"
                 strokeLinejoin="round"
                 strokeLinecap="round"

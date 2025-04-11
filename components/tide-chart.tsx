@@ -7,9 +7,10 @@ import type { StormglassTideResponse } from "@/lib/stormglass-service"
 interface TideChartProps {
   tideData: StormglassTideResponse
   date: string
+  debug?: boolean // Add debug mode flag
 }
 
-export default function TideChart({ tideData, date }: TideChartProps) {
+export default function TideChart({ tideData, date, debug = true }: TideChartProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
 
   useEffect(() => {
@@ -129,8 +130,8 @@ export default function TideChart({ tideData, date }: TideChartProps) {
     } else {
       // Draw tide curve with actual data
       ctx.beginPath()
-      ctx.strokeStyle = "#3b82f6"
-      ctx.lineWidth = 2
+      ctx.strokeStyle = "#000000" // Change to black
+      ctx.lineWidth = 1 // Change to 1px
 
       let firstPoint = true
 
@@ -156,34 +157,35 @@ export default function TideChart({ tideData, date }: TideChartProps) {
       ctx.stroke()
     }
 
-    // Draw high and low tide markers
-    tideData.data.forEach((point) => {
-      if (!point.type) return
+      // Draw high and low tide markers
+      tideData.data.forEach((point) => {
+        if (!point.type) return
 
-      const pointTime = new Date(point.time)
+        const pointTime = new Date(point.time)
 
-      // Skip points outside the selected day
-      if (pointTime < startOfDay || pointTime > endOfDay) {
-        return
-      }
+        // Skip points outside the selected day
+        if (pointTime < startOfDay || pointTime > endOfDay) {
+          return
+        }
 
-      // Calculate position
-      const minutesSinceMidnight = pointTime.getHours() * 60 + pointTime.getMinutes()
-      const x = padding + ((width - 2 * padding) * minutesSinceMidnight) / (24 * 60)
-      const y = height - padding - ((height - 2 * padding) * (point.height - minHeight)) / heightRange
+        // Calculate position
+        const minutesSinceMidnight = pointTime.getHours() * 60 + pointTime.getMinutes()
+        const x = padding + ((width - 2 * padding) * minutesSinceMidnight) / (24 * 60)
+        const y = height - padding - ((height - 2 * padding) * (point.height - minHeight)) / heightRange
 
-      // Draw marker
-      ctx.beginPath()
-      ctx.arc(x, y, 5, 0, 2 * Math.PI)
-      ctx.fillStyle = point.type === "high" ? "#3b82f6" : "#f97316"
-      ctx.fill()
+        // Draw marker
+        ctx.beginPath()
+        ctx.arc(x, y, 5, 0, 2 * Math.PI)
+        ctx.fillStyle = point.type === "high" ? "#3b82f6" : "#f97316"
+        ctx.fill()
 
-      // Draw label
-      ctx.fillStyle = point.type === "high" ? "#3b82f6" : "#f97316"
-      ctx.textAlign = "center"
-      ctx.fillText(`${point.type === "high" ? "High" : "Low"}: ${point.height.toFixed(1)}m`, x, y - 15)
-      ctx.fillText(`${pointTime.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`, x, y - 30)
-    })
+        // Draw label - always show tide type, height, and time
+        ctx.fillStyle = point.type === "high" ? "#000000" : "#000000"
+        ctx.font = "bold 12px sans-serif"
+        ctx.textAlign = "center"
+        ctx.fillText(`${point.type === "high" ? "High" : "Low"}: ${point.height.toFixed(1)}m`, x, y - 15)
+        ctx.fillText(`${pointTime.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`, x, y - 30)
+      })
   }, [tideData, date])
 
   if (!tideData || !tideData.data) {
@@ -210,6 +212,37 @@ export default function TideChart({ tideData, date }: TideChartProps) {
           <p>Source: {tideData.meta.station?.name || "Stormglass.io"}</p>
           {tideData.meta.station?.distance && <p>Station distance: {tideData.meta.station.distance.toFixed(1)} km</p>}
         </div>
+        
+        {debug && (
+          <div className="mt-6">
+            <h3 className="text-lg font-medium mb-2">Tide Extremes (Debug)</h3>
+            <div className="overflow-x-auto">
+              <table className="w-full border-collapse">
+                <thead>
+                  <tr className="bg-slate-100">
+                    <th className="border border-slate-300 px-4 py-2 text-left">Type</th>
+                    <th className="border border-slate-300 px-4 py-2 text-left">Time</th>
+                    <th className="border border-slate-300 px-4 py-2 text-left">Height (m)</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {tideData.data
+                    .filter(point => point.type && new Date(point.time).toDateString() === new Date(date).toDateString())
+                    .sort((a, b) => new Date(a.time).getTime() - new Date(b.time).getTime())
+                    .map((point, index) => (
+                      <tr key={index}>
+                        <td className="border border-slate-300 px-4 py-2 capitalize">{point.type}</td>
+                        <td className="border border-slate-300 px-4 py-2">
+                          {new Date(point.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                        </td>
+                        <td className="border border-slate-300 px-4 py-2">{point.height.toFixed(2)}</td>
+                      </tr>
+                    ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
       </CardContent>
     </Card>
   )
