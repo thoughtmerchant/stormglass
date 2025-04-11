@@ -5,14 +5,20 @@ import type React from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import Image from "next/image"
+import { NavBar } from "@/components/nav-bar"
 
 export function SiteLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
 
   return (
-    <div className="flex flex-col md:flex-row min-h-screen">
+    <div className="flex flex-col md:flex-row min-h-screen dark:bg-slate-950">
       {/* Left sidebar navigation */}
-      <div className="w-full md:w-64 p-8 md:fixed md:h-screen">
+      {/* Top navigation for mobile and theme toggle */}
+      <div className="md:hidden">
+        <NavBar />
+      </div>
+
+      <div className="w-full md:w-64 p-8 md:fixed md:h-screen dark:bg-slate-900">
         <div className="mb-8">
           <Link href="/">
             <Image
@@ -29,7 +35,7 @@ export function SiteLayout({ children }: { children: React.ReactNode }) {
           <Link
             href="/"
             className={`block py-1 hover:text-blue-600 transition-colors ${
-              pathname === "/" ? "text-blue-600 font-medium" : "text-slate-800"
+              pathname === "/" ? "text-blue-600 font-medium" : "text-slate-800 dark:text-slate-200"
             }`}
           >
             Dashboard
@@ -37,7 +43,7 @@ export function SiteLayout({ children }: { children: React.ReactNode }) {
           <Link
             href="/historical"
             className={`block py-1 hover:text-blue-600 transition-colors ${
-              pathname === "/historical" ? "text-blue-600 font-medium" : "text-slate-800"
+              pathname === "/historical" ? "text-blue-600 font-medium" : "text-slate-800 dark:text-slate-200"
             }`}
           >
             Historical Data
@@ -45,7 +51,7 @@ export function SiteLayout({ children }: { children: React.ReactNode }) {
           <Link
             href="/hourly"
             className={`block py-1 hover:text-blue-600 transition-colors ${
-              pathname === "/hourly" ? "text-blue-600 font-medium" : "text-slate-800"
+              pathname === "/hourly" ? "text-blue-600 font-medium" : "text-slate-800 dark:text-slate-200"
             }`}
           >
             Hourly Forecast
@@ -53,7 +59,7 @@ export function SiteLayout({ children }: { children: React.ReactNode }) {
           <Link
             href="/output"
             className={`block py-1 hover:text-blue-600 transition-colors ${
-              pathname === "/output" ? "text-blue-600 font-medium" : "text-slate-800"
+              pathname === "/output" ? "text-blue-600 font-medium" : "text-slate-800 dark:text-slate-200"
             }`}
           >
             Output
@@ -61,7 +67,7 @@ export function SiteLayout({ children }: { children: React.ReactNode }) {
           <Link
             href="/font-debug"
             className={`block py-1 hover:text-blue-600 transition-colors ${
-              pathname === "/font-debug" ? "text-blue-600 font-medium" : "text-slate-800"
+              pathname === "/font-debug" ? "text-blue-600 font-medium" : "text-slate-800 dark:text-slate-200"
             }`}
           >
             Font Debug
@@ -69,18 +75,18 @@ export function SiteLayout({ children }: { children: React.ReactNode }) {
           <Link
             href="/vestaboard"
             className={`block py-1 hover:text-blue-600 transition-colors ${
-              pathname === "/vestaboard" ? "text-blue-600 font-medium" : "text-slate-800"
+              pathname === "/vestaboard" ? "text-blue-600 font-medium" : "text-slate-800 dark:text-slate-200"
             }`}
           >
             Vestaboard
           </Link>
 
           {/* Submenu section with a separator */}
-          <div className="pt-4 mt-4 border-t border-slate-200">
+          <div className="pt-4 mt-4 border-t border-slate-200 dark:border-slate-700">
             <Link
               href="/data-sources"
               className={`block py-1 hover:text-blue-600 transition-colors ${
-                pathname === "/data-sources" ? "text-blue-600 font-medium" : "text-slate-600 text-sm"
+                pathname === "/data-sources" ? "text-blue-600 font-medium" : "text-slate-600 dark:text-slate-400 text-sm"
               }`}
             >
               Data Sources
@@ -88,7 +94,7 @@ export function SiteLayout({ children }: { children: React.ReactNode }) {
             <Link
               href="/methodology"
               className={`block py-1 hover:text-blue-600 transition-colors ${
-                pathname === "/methodology" ? "text-blue-600 font-medium" : "text-slate-600 text-sm"
+                pathname === "/methodology" ? "text-blue-600 font-medium" : "text-slate-600 dark:text-slate-400 text-sm"
               }`}
             >
               Methodology
@@ -96,7 +102,7 @@ export function SiteLayout({ children }: { children: React.ReactNode }) {
             <Link
               href="/work-in-progress"
               className={`block py-1 hover:text-blue-600 transition-colors ${
-                pathname === "/work-in-progress" ? "text-blue-600 font-medium" : "text-slate-600 text-sm"
+                pathname === "/work-in-progress" ? "text-blue-600 font-medium" : "text-slate-600 dark:text-slate-400 text-sm"
               }`}
             >
               Work in Progress
@@ -106,7 +112,13 @@ export function SiteLayout({ children }: { children: React.ReactNode }) {
       </div>
 
       {/* Main content */}
-      <main className="flex-1 md:ml-64 bg-white">{children}</main>
+      <main className="flex-1 md:ml-64 bg-white dark:bg-slate-950">
+        {/* Top navigation (desktop) */}
+        <div className="hidden md:block">
+          <NavBar />
+        </div>
+        {children}
+      </main>
     </div>
   )
 }
