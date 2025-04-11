@@ -625,70 +625,80 @@ export function OceanDataVisualization({
   const createPrimarySwellLines = () => {
     const centerX = 400
     const centerY = 400
-    const maxRadius = 340
+    const maxRadius = 380 // Increased from 340
+    const minRadius = 200 // Increased from 150 to make lines longer
 
     const primarySwells = getPrimarySwellDirections()
 
-    if (primarySwells.length === 0) {
+    if (primarySwells.length < 2) {
+      // Need at least 2 points
       return null
     }
 
+    // Take only the top 2 swell directions
+    const top2Swells = primarySwells.slice(0, 2)
+    
+    // Calculate the points for the lines
+    const points = top2Swells.map(swell => {
+      // Convert to radians and adjust for SVG coordinate system
+      const angleRad = (Math.PI * (90 - swell.direction)) / 180
+
+      // Calculate line length based on absolute wave height
+      // Ensure it's at least minRadius to break the plane of concentric circles
+      let length
+      if (swell.height < 4) {
+        // For small swells (< 4ft), scale from minRadius to 250px
+        length = minRadius + (swell.height / 4) * (250 - minRadius)
+      } else {
+        // For larger swells, scale from 250px to maxRadius
+        length = 250 + ((swell.height - 4) / (100 - 4)) * (maxRadius - 250)
+      }
+
+      // Ensure we don't exceed maxRadius
+      length = Math.min(length, maxRadius)
+      
+      // Calculate end point
+      const x = centerX + length * Math.cos(angleRad)
+      const y = centerY - length * Math.sin(angleRad)
+      
+      return { 
+        x, 
+        y, 
+        direction: swell.direction, 
+        height: swell.height,
+        angleRad
+      }
+    })
+
     return (
       <>
-        {primarySwells.map((swell, index) => {
-          // Convert to radians and adjust for SVG coordinate system
-          const angleRad = (Math.PI * (90 - swell.direction)) / 180
-
-          // Calculate line length based on absolute wave height
-          // For swells below 4ft, keep them under 100px
-          // For a theoretical 100ft swell, use the max radius
-          // Scale everything else proportionally
-          let length
-          if (swell.height < 4) {
-            // For small swells (< 4ft), scale from 30px to 100px
-            length = 30 + (swell.height / 4) * 70
-          } else {
-            // For larger swells, scale from 100px to maxRadius
-            // 100ft is theoretical maximum (340px)
-            length = 100 + ((swell.height - 4) / (100 - 4)) * (maxRadius - 100)
-          }
-
-          // Ensure we don't exceed maxRadius
-          length = Math.min(length, maxRadius)
-
-          // Calculate end point
-          const endX = centerX + length * Math.cos(angleRad)
-          const endY = centerY - length * Math.sin(angleRad)
-
-          return (
-            <g key={`swell-${index}`}>
-              {/* Line - now 1px with 100% opacity */}
-              <line
-                x1={centerX}
-                y1={centerY}
-                x2={endX}
-                y2={endY}
-                stroke="#000000"
-                strokeWidth="1"
-                strokeLinecap="round"
-                opacity="1"
-              />
-
-              {/* Debug information - only shown in debug mode */}
-              {debug && (
-                <text
-                  x={endX + 5 * Math.cos(angleRad)}
-                  y={endY - 5 * Math.sin(angleRad)}
-                  textAnchor="middle"
-                  fontSize="10"
-                  fill="#000000"
-                >
-                  {swell.direction}° {swell.height.toFixed(1)}ft
-                </text>
-              )}
-            </g>
-          )
-        })}
+        {/* Draw lines radiating from center to each point */}
+        {points.map((point, index) => (
+          <line
+            key={`swell-line-${index}`}
+            x1={centerX}
+            y1={centerY}
+            x2={point.x}
+            y2={point.y}
+            stroke="#000000"
+            strokeWidth="1"
+            strokeLinecap="round"
+          />
+        ))}
+        
+        {/* Debug information - only shown in debug mode */}
+        {debug && points.map((point, index) => (
+          <text
+            key={`swell-debug-${index}`}
+            x={point.x + 5 * Math.cos(point.angleRad)}
+            y={point.y - 5 * Math.sin(point.angleRad)}
+            textAnchor="middle"
+            fontSize="10"
+            fill="#000000"
+          >
+            {point.direction}° {point.height.toFixed(1)}ft
+          </text>
+        ))}
       </>
     )
   }
@@ -893,8 +903,7 @@ export function OceanDataVisualization({
             {/* Wave height markers - always show if wave data is available */}
             {waveData && createWaveHeightMarkers()}
 
-            {/* Swell direction line - always show if wave data is available */}
-            {waveData && createSwellDirectionLines()}
+            {/* Current swell direction line removed to ensure only 2 lines total */}
 
             {/* Tide curve - always render, either with real data or fallback */}
             {tidePath && (
