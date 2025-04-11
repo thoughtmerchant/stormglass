@@ -19,7 +19,7 @@ const clients = [
 
 export default function Home() {
   const [isRefreshing, setIsRefreshing] = useState(false)
-  const [waveData, setWaveData] = useState(null)
+  const [waveData, setWaveData] = useState<any>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [waterTempData, setWaterTempData] = useState<WaterTemperatureData | null>(null)
 
@@ -238,7 +238,7 @@ export default function Home() {
     return (
       <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} className="mx-auto">
         {/* Compass circle */}
-        <circle cx={center} cy={center} r={radius} fill="white" stroke="#94a3b8" strokeWidth="1" />
+        <circle cx={center} cy={center} r={radius} fill="white dark:fill-slate-800" stroke="#94a3b8 dark:stroke-slate-600" strokeWidth="1" />
 
         {/* Cardinal direction markers */}
         <text x={center} y={center - radius + 5} textAnchor="middle" fontSize="12" fill="#64748b">
@@ -313,8 +313,8 @@ export default function Home() {
 
         <Card className="mb-8">
           <CardHeader>
-            <CardTitle>Search for a Surf Spot</CardTitle>
-            <CardDescription>
+            <CardTitle className="dark:text-slate-100">Search for a Surf Spot</CardTitle>
+            <CardDescription className="dark:text-slate-300">
               Enter a beach, surf spot, or city name to get detailed marine and weather forecasts
             </CardDescription>
           </CardHeader>
@@ -324,13 +324,13 @@ export default function Home() {
         </Card>
 
         <div className="space-y-6">
-          <h2 className="text-xl font-semibold">About Stormglass.io</h2>
+          <h2 className="text-xl font-semibold dark:text-slate-100">About Stormglass.io</h2>
           <p className="text-muted-foreground">
             Stormglass.io provides high-resolution forecasts for up to 10 days ahead as well as historical data. Marine
             data including tide is available for all oceans and seas worldwide.
           </p>
 
-          <h3 className="text-lg font-medium">Available Data</h3>
+          <h3 className="text-lg font-medium dark:text-slate-200">Available Data</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Card>
               <CardHeader className="pb-2">
