@@ -2,6 +2,10 @@
 
 A web application that provides high-resolution forecasts for marine and weather conditions for surfing spots worldwide.
 
+## Experimental Branch
+
+This branch is used for experimental features and improvements that are not yet ready for production. Feel free to try out new ideas here!
+
 ## Features
 
 - Search for surf spots by location name
