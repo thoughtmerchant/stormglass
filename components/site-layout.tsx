@@ -14,12 +14,12 @@ export function SiteLayout({ children }: { children: React.ReactNode }) {
     <div className="flex flex-col md:flex-row min-h-screen dark:bg-slate-950">
       {/* Left sidebar navigation */}
       {/* Top navigation for mobile and theme toggle */}
-      <div className="md:hidden">
+      <div className="md:hidden sticky top-0 z-10 shadow-sm dark:shadow-slate-800">
         <NavBar />
       </div>
 
-      <div className="w-full md:w-64 p-8 md:fixed md:h-screen dark:bg-slate-900">
-        <div className="mb-8">
+      <div className="w-full md:w-64 p-8 md:fixed md:h-screen dark:bg-slate-900 transition-colors duration-200">
+        <div className="mb-8 flex justify-center md:justify-start">
           <Link href="/">
             <Image
               src="/placeholder.svg?height=40&width=40"
@@ -112,7 +112,7 @@ export function SiteLayout({ children }: { children: React.ReactNode }) {
       </div>
 
       {/* Main content */}
-      <main className="flex-1 md:ml-64 bg-white dark:bg-slate-950">
+      <main className="flex-1 md:ml-64 bg-white dark:bg-slate-950 transition-colors duration-200">
         {/* Top navigation (desktop) */}
         <div className="hidden md:block">
           <NavBar />
