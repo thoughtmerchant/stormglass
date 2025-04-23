@@ -5,9 +5,11 @@ import type { WaveData, WavePoint } from "@/lib/wave-service"
 
 interface SwellDirectionVisualizationProps {
   waveData: WaveData | null
+  location?: string
+  date?: string
 }
 
-export function SwellDirectionVisualization({ waveData }: SwellDirectionVisualizationProps) {
+export function SwellDirectionVisualization({ waveData, location, date }: SwellDirectionVisualizationProps) {
   if (!waveData || !waveData.forecast || waveData.forecast.length === 0) {
     return (
       <Card>
@@ -150,6 +152,38 @@ export function SwellDirectionVisualization({ waveData }: SwellDirectionVisualiz
       <CardContent>
         <div className="flex justify-center">
           <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
+            <defs>
+              <style type="text/css">
+                {`
+                  text {
+                    font-family: sfa, sans-serif;
+                  }
+                `}
+              </style>
+            </defs>
+            {/* Location and date display - centered at bottom */}
+            <text
+              x={center}
+              y={size - 25}
+              textAnchor="middle"
+              fontSize="36"
+              fontWeight="bold"
+              fontFamily="sfa, sans-serif"
+              style={{ textTransform: 'uppercase' }}
+            >
+              {location || "LOCATION UNAVAILABLE"}
+            </text>
+            <text
+              x={center}
+              y={size - 10}
+              textAnchor="middle"
+              fontSize="30"
+              fontFamily="sfa, sans-serif"
+              style={{ textTransform: 'uppercase' }}
+            >
+              {date || new Date().toLocaleDateString()}
+            </text>
+            
             {/* Background circle */}
             <circle
               cx={center}

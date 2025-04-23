@@ -25,6 +25,7 @@ import WeatherCard from "@/components/weather-card"
 import TideChart from "@/components/tide-chart"
 import AstronomyCard from "@/components/astronomy-card"
 import { OceanDataVisualization } from "@/components/ocean-data-visualization"
+import { PlotterSvgDownload } from "@/components/plotter-svg-download"
 
 export default function ForecastPage() {
   const searchParams = useSearchParams()
@@ -122,7 +123,7 @@ export default function ForecastPage() {
         toast({
           title: "Using demo data",
           description: "Could not connect to Stormglass API. Showing demo data instead.",
-          variant: "warning",
+          variant: "default",
         })
       } else {
         // Use real data from API
@@ -172,7 +173,7 @@ export default function ForecastPage() {
       toast({
         title: "Using demo data",
         description: "An error occurred. Showing demo data instead.",
-        variant: "warning",
+        variant: "default",
       })
     } finally {
       setIsLoading(false)
@@ -325,7 +326,29 @@ export default function ForecastPage() {
                     ? `${(new Date(astronomyData?.sunset || "").getHours() + 1).toString().padStart(2, "0")}:${new Date(astronomyData?.sunset || "").getMinutes().toString().padStart(2, "0")}`
                     : "20:30",
               }}
+              location={locationName}
+              date={formattedDate}
             />
+            
+            <div className="flex justify-end mt-4">
+              <PlotterSvgDownload
+                tideData={adaptedTideData}
+                waveData={adaptedWaveData}
+                waterTempData={adaptedWaterTempData}
+                astronomicalTimes={{
+                  firstLight:
+                    new Date(astronomyData?.sunrise || "").getHours() > 0
+                      ? `${(new Date(astronomyData?.sunrise || "").getHours() - 1).toString().padStart(2, "0")}:${new Date(astronomyData?.sunrise || "").getMinutes().toString().padStart(2, "0")}`
+                      : "05:30",
+                  sunrise: `${new Date(astronomyData?.sunrise || "").getHours().toString().padStart(2, "0")}:${new Date(astronomyData?.sunrise || "").getMinutes().toString().padStart(2, "0")}`,
+                  sunset: `${new Date(astronomyData?.sunset || "").getHours().toString().padStart(2, "0")}:${new Date(astronomyData?.sunset || "").getMinutes().toString().padStart(2, "0")}`,
+                  lastLight:
+                    new Date(astronomyData?.sunset || "").getHours() < 23
+                      ? `${(new Date(astronomyData?.sunset || "").getHours() + 1).toString().padStart(2, "0")}:${new Date(astronomyData?.sunset || "").getMinutes().toString().padStart(2, "0")}`
+                      : "20:30",
+                }}
+              />
+            </div>
           </CardContent>
         </Card>
 
@@ -348,19 +371,21 @@ export default function ForecastPage() {
                   <div className="overflow-x-auto">
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4 min-w-[800px]">
                       {hourlyData.map(({ hour, data }) => (
-                        <WaveForecastCard
-                          key={hour}
-                          time={data.time}
-                          waveHeight={data.waveHeight?.["sg"]}
-                          waveDirection={data.waveDirection?.["sg"]}
-                          wavePeriod={data.wavePeriod?.["sg"]}
-                          swellHeight={data.swellHeight?.["sg"]}
-                          swellDirection={data.swellDirection?.["sg"]}
-                          swellPeriod={data.swellPeriod?.["sg"]}
-                          waterTemperature={data.waterTemperature?.["sg"]}
-                          windSpeed={data.windSpeed?.["sg"]}
-                          windDirection={data.windDirection?.["sg"]}
-                        />
+                        data && (
+                          <WaveForecastCard
+                            key={hour}
+                            time={data.time}
+                            waveHeight={data.waveHeight?.["sg"]}
+                            waveDirection={data.waveDirection?.["sg"]}
+                            wavePeriod={data.wavePeriod?.["sg"]}
+                            swellHeight={data.swellHeight?.["sg"]}
+                            swellDirection={data.swellDirection?.["sg"]}
+                            swellPeriod={data.swellPeriod?.["sg"]}
+                            waterTemperature={data.waterTemperature?.["sg"]}
+                            windSpeed={data.windSpeed?.["sg"]}
+                            windDirection={data.windDirection?.["sg"]}
+                          />
+                        )
                       ))}
                     </div>
                   </div>
@@ -400,17 +425,19 @@ export default function ForecastPage() {
                   <div className="overflow-x-auto">
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4 min-w-[800px]">
                       {hourlyData.map(({ hour, data }) => (
-                        <WeatherCard
-                          key={hour}
-                          time={data.time}
-                          airTemperature={data.airTemperature?.["sg"]}
-                          humidity={data.humidity?.["sg"]}
-                          cloudCover={data.cloudCover?.["sg"]}
-                          precipitation={data.precipitation?.["sg"]}
-                          windSpeed={data.windSpeed?.["sg"]}
-                          windDirection={data.windDirection?.["sg"]}
-                          visibility={data.visibility?.["sg"]}
-                        />
+                        data && (
+                          <WeatherCard
+                            key={hour}
+                            time={data.time}
+                            airTemperature={data.airTemperature?.["sg"]}
+                            humidity={data.humidity?.["sg"]}
+                            cloudCover={data.cloudCover?.["sg"]}
+                            precipitation={data.precipitation?.["sg"]}
+                            windSpeed={data.windSpeed?.["sg"]}
+                            windDirection={data.windDirection?.["sg"]}
+                            visibility={data.visibility?.["sg"]}
+                          />
+                        )
                       ))}
                     </div>
                   </div>

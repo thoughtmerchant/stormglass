@@ -34,7 +34,7 @@ export function PlotterSvgDownload({ tideData, waveData, waterTempData, astronom
         waterTempData,
         astronomicalTimes,
         penWidth: 2, // 2mm pen width
-        font: "Arial", // Default font
+        font: "sfa", // Use sfa font
         singleStrokeFontUrl:
           "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/full_single_stroke_characters-IjkjjxkcSWlEtfgxQ8TCVBtFoqyNJm.svg", // URL to the single-stroke font
       })

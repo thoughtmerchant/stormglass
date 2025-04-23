@@ -19,6 +19,8 @@ interface OceanDataVisualizationProps {
   }
   timeZoneOffset?: number
   forceDebug?: boolean
+  location?: string
+  date?: string
 }
 
 export interface WaterTemperatureData {
@@ -33,6 +35,8 @@ export function OceanDataVisualization({
   astronomicalTimes,
   timeZoneOffset,
   forceDebug,
+  location,
+  date,
 }: OceanDataVisualizationProps) {
   const [mounted, setMounted] = useState(false)
   const [debug, setDebug] = useState(forceDebug || false)
@@ -890,7 +894,7 @@ export function OceanDataVisualization({
             <style type="text/css">
               {`
                 text {
-                  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+                  font-family: sfa, sans-serif;
                   font-size: 10px;
                 }
               `}
@@ -899,6 +903,29 @@ export function OceanDataVisualization({
 
           {/* Background */}
           <rect width="800" height="800" fill="#ffffff" />
+          
+          {/* Location and date display - centered at bottom */}
+          <text
+            x="400"
+            y="750"
+            textAnchor="middle"
+            fontSize="54"
+            fontWeight="bold"
+            fontFamily="sfa, sans-serif"
+            style={{ textTransform: 'uppercase' }}
+          >
+            {location || "LOCATION UNAVAILABLE"}
+          </text>
+          <text
+            x="400"
+            y="775"
+            textAnchor="middle"
+            fontSize="42"
+            fontFamily="sfa, sans-serif"
+            style={{ textTransform: 'uppercase' }}
+          >
+            {date || new Date().toLocaleDateString()}
+          </text>
 
           {/* Content group - moved up 100px */}
           <g transform="translate(0, -100)">

@@ -26,7 +26,7 @@ export function generatePlotterSvg(options: PlotterSvgOptions): string {
     waterTempData,
     astronomicalTimes,
     penWidth = 2,
-    font = "Arial",
+    font = "sfa",
     singleStrokeFontUrl,
   } = options
 
@@ -47,12 +47,27 @@ export function generatePlotterSvg(options: PlotterSvgOptions): string {
   // Generate SVG content - removing the border and simplifying the template string
   const svgContent =
     `<svg width="800" height="800" viewBox="0 0 800 800" xmlns="http://www.w3.org/2000/svg" style="background-color: white;">
+  <defs>
+    <style type="text/css">
+      @font-face {
+        font-family: 'sfa';
+        src: url('/fonts/sfa.ttf') format('truetype');
+        font-weight: normal;
+        font-style: normal;
+      }
+      text {
+        font-family: 'sfa', sans-serif;
+      }
+    </style>
+  </defs>
+  <!-- No script needed since we're using single-stroke text paths directly -->
   <g transform="translate(0, -100)">
     ${waterTempData ? generateTemperatureRings(waterTempData, strokeWidth) : ""}
     ${waveData ? generatePrimarySwellLines(waveData, strokeWidth) : ""}
     ${waveData ? generateWaveHeightMarkers(waveData, strokeWidth) : ""}
     ${tidePath ? `<path d="${tidePath}" fill="none" stroke="black" stroke-width="${strokeWidth}" stroke-linejoin="round" stroke-linecap="round" />` : ""}
     ${generateSunEvents(astronomicalTimes, strokeWidth)}
+    <!-- Single-stroke text for pen plotting -->
     ${generateSingleStrokeText("VENICE, CALIFORNIA", 400, 790, strokeWidth, 0.8)}
     ${generateSingleStrokeText(formattedDate.toUpperCase(), 400, 835, strokeWidth, 0.6)}
   </g>
